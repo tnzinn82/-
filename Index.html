@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Dedicação ❤️</title>
+<style>
+  :root{
+    --bg1:#050014;
+    --bg2:#0b0820;
+    --neon-pink: #ff3fa6;
+    --neon-cyan: #3ef0ff;
+    --glass: rgba(255,255,255,0.02);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing:antialiased; background: radial-gradient(1200px 600px at 10% 20%, rgba(62,40,120,0.18), transparent), radial-gradient(1000px 500px at 90% 80%, rgba(0,120,140,0.08), transparent), linear-gradient(180deg,var(--bg1), var(--bg2)); color:#fff;}
+  
+  /* Central container with perspective for 3D tilt */
+  .stage{
+    width:100%;
+    height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    perspective:1200px;
+    overflow:hidden;
+  }
+
+  .card{
+    width:min(1100px, 92vw);
+    height:min(600px, 76vh);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    transform-style:preserve-3d;
+    transition: transform 0.12s ease-out;
+    border-radius:18px;
+    position:relative;
+    padding:28px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.008) 0 1px, transparent 1px 20px);
+    box-shadow: 0 8px 40px rgba(3,6,20,0.7), inset 0 1px 0 rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.03);
+    outline: none;
+  }
+
+  /* Neon text (italic) */
+  .title{
+    font-size: clamp(28px, 6.5vw, 72px);
+    font-style: italic; /* aqui tá o italic */
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #fff;
+    text-align:center;
+    mix-blend-mode:screen;
+    /* neon glow: múltiplas camadas */
+    text-shadow:
+      0 0 6px rgba(255,255,255,0.08),
+      0 0 18px rgba(255,255,255,0.04),
+      0 0 28px rgba(255,63,166,0.22),
+      0 0 46px rgba(62,240,255,0.06),
+      0 6px 24px rgba(0,0,0,0.6);
+    transform: translateZ(40px) translateY(-6px);
+    padding: 6px 14px;
+    border-radius: 8px;
+  }
+
+  /* Subtitle / small glow line */
+  .line{
+    height:2px;
+    width:44%;
+    max-width:420px;
+    background: linear-gradient(90deg, rgba(62,240,255,0.85), rgba(255,63,166,0.95));
+    filter: blur(6px);
+    opacity:0.8;
+    transform: translateZ(30px);
+  }
+
+  /* Big neon heart (emoji) */
+  .heart{
+    font-size: clamp(64px, 22vw, 260px);
+    line-height:1;
+    transform: translateZ(60px);
+    user-select:none;
+    pointer-events:none;
+    filter: drop-shadow(0 24px 40px rgba(255,63,166,0.14));
+    animation: pulse 1.8s ease-in-out infinite;
+    /* intense neon glow using text-shadow */
+    text-shadow:
+      0 2px 0 rgba(0,0,0,0.25),
+      0 0 8px rgba(255,63,166,0.25),
+      0 0 24px rgba(255,63,166,0.30),
+      0 0 48px rgba(62,240,255,0.12),
+      0 8px 32px rgba(62,240,255,0.06);
+    transform-origin:center center;
+  }
+
+  /* subtle animated neon streak behind card */
+  .glow{
+    position:absolute;
+    inset: -20% -10% auto -10%;
+    height: 50%;
+    background: radial-gradient(600px 200px at 10% 50%, rgba(62,240,255,0.06), transparent 10%),
+                radial-gradient(400px 180px at 90% 50%, rgba(255,63,166,0.06), transparent 10%);
+    filter: blur(30px);
+    pointer-events:none;
+  }
+
+  /* footer small note */
+  .note{
+    position:absolute;
+    bottom:14px;
+    right:18px;
+    font-size:12px;
+    color:rgba(255,255,255,0.45);
+    transform: translateZ(20px);
+  }
+
+  /* animations */
+  @keyframes pulse{
+    0%{ transform: scale(0.98) translateZ(60px) }
+    50%{ transform: scale(1.06) translateZ(60px) }
+    100%{ transform: scale(0.98) translateZ(60px) }
+  }
+
+  /* small responsive tweaks */
+  @media (max-width:700px){
+    .card{padding:18px;border-radius:12px}
+    .line{width:60%}
+    .note{right:10px;bottom:8px}
+  }
+</style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <div class="card" id="card">
+      <div class="title">Te amo Beatriz</div>
+      <div class="line"></div>
+      <div class="heart" aria-hidden="true">🫀</div>
+      <div class="glow" aria-hidden="true"></div>
+      <div class="note">Unica pra sempre🥰</div>
+    </div>
+  </div>
+
+<script>
+/* pequena interação 3D por mouse (tilt) */
+(function(){
+  const stage = document.getElementById('stage');
+  const card = document.getElementById('card');
+
+  // limita a rotação máxima em graus
+  const maxRot = 12; 
+
+  function handleMove(e){
+    const rect = stage.getBoundingClientRect();
+    const x = ( (e.clientX - rect.left) / rect.width ) - 0.5; // -0.5..0.5
+    const y = ( (e.clientY - rect.top) / rect.height ) - 0.5;
+    const rotY = x * maxRot * -1; // virar para o lado oposto do cursor
+    const rotX = y * maxRot;
+    // leve escala quando inclinar
+    const scale = 1.02;
+    card.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) scale(${scale})`;
+  }
+
+  function reset(){
+    card.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+  }
+
+  window.addEventListener('mousemove', handleMove);
+  window.addEventListener('touchmove', function(ev){
+    if(ev.touches && ev.touches[0]) handleMove(ev.touches[0]);
+  }, {passive:true});
+  window.addEventListener('mouseleave', reset);
+  window.addEventListener('touchend', reset);
+})();
+</script>
+</body>
+</html>
